@@ -1,0 +1,40 @@
+from django.contrib import admin
+from .models import HeroContent, Highlight, Faculty, Alumni, GalleryEvent, GalleryPhoto
+
+
+@admin.register(HeroContent)
+class HeroContentAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Highlight)
+class HighlightAdmin(admin.ModelAdmin):
+    list_display = ['text', 'href', 'order', 'is_active']
+    list_editable = ['order', 'is_active']
+    ordering = ['order']
+
+
+@admin.register(Faculty)
+class FacultyAdmin(admin.ModelAdmin):
+    list_display = ['name', 'designation', 'department', 'order']
+    list_filter = ['department']
+    list_editable = ['order']
+    ordering = ['department', 'order', 'name']
+
+
+@admin.register(Alumni)
+class AlumniAdmin(admin.ModelAdmin):
+    list_display = ['name', 'batch', 'company', 'designation']
+    list_filter = ['batch']
+    ordering = ['-batch', 'name']
+
+
+@admin.register(GalleryEvent)
+class GalleryEventAdmin(admin.ModelAdmin):
+    list_display = ['name', 'date', 'created_at']
+
+
+@admin.register(GalleryPhoto)
+class GalleryPhotoAdmin(admin.ModelAdmin):
+    list_display = ['event', 'caption', 'order', 'uploaded_at']
+    list_filter = ['event']
