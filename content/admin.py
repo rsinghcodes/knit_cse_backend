@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import HeroContent, Highlight, Faculty, Alumni, GalleryEvent, GalleryPhoto
+from .models import HeroContent, Highlight, Faculty, Alumni, GalleryEvent, GalleryPhoto, Circular, Notice
 
 
 @admin.register(HeroContent)
@@ -38,3 +38,18 @@ class GalleryEventAdmin(admin.ModelAdmin):
 class GalleryPhotoAdmin(admin.ModelAdmin):
     list_display = ['event', 'caption', 'order', 'uploaded_at']
     list_filter = ['event']
+
+
+@admin.register(Circular)
+class CircularAdmin(admin.ModelAdmin):
+    list_display = ['title', 'date', 'order', 'is_active']
+    list_editable = ['order', 'is_active']
+    ordering = ['order']
+
+
+@admin.register(Notice)
+class NoticeAdmin(admin.ModelAdmin):
+    list_display = ['title', 'date', 'order', 'is_active']
+    list_editable = ['order', 'is_active']
+    ordering = ['order']
+

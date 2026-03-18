@@ -10,6 +10,8 @@ from .views import (
     FeaturedItemViewSet,
     QuickLinkViewSet,
     CourseViewSet,
+    CircularViewSet,
+    NoticeViewSet,
 )
 
 router = DefaultRouter()
@@ -21,6 +23,8 @@ router.register(r'gallery/photos', GalleryPhotoViewSet, basename='gallery-photo'
 router.register(r'featured', FeaturedItemViewSet, basename='featured')
 router.register(r'quicklinks', QuickLinkViewSet, basename='quicklink')
 router.register(r'courses', CourseViewSet, basename='course')
+router.register(r'circulars', CircularViewSet, basename='circular')
+router.register(r'notices', NoticeViewSet, basename='notice')
 
 urlpatterns = [
     path('hero/', HeroContentView.as_view(), name='hero'),

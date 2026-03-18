@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     HeroContent, Highlight, Faculty, Alumni, GalleryEvent, GalleryPhoto,
-    FeaturedItem, QuickLink, Course
+    FeaturedItem, QuickLink, Course, Circular, Notice
 )
 
 
@@ -79,7 +79,7 @@ class GalleryEventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GalleryEvent
-        fields = ['id', 'name', 'description', 'date', 'cover_photo', 'cover_photo_url', 'photos', 'created_at']
+        fields = ['id', 'name', 'description', 'date', 'location', 'cover_photo', 'cover_photo_url', 'photos', 'created_at']
 
     def get_cover_photo_url(self, obj):
         request = self.context.get('request')
@@ -119,4 +119,32 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'
+
+
+class CircularSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Circular
+        fields = ['id', 'title', 'date', 'file_size', 'language', 'file', 'file_url', 'link', 'order', 'is_active', 'created_at']
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return None
+
+
+class NoticeSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Notice
+        fields = ['id', 'title', 'description', 'date', 'file', 'file_url', 'link', 'order', 'is_active', 'created_at']
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return None
 

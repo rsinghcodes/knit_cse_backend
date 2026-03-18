@@ -1,4 +1,7 @@
 from django.db import models
+from pathlib import Path
+from pypdf import PdfReader
+from langdetect import detect
 
 
 class HeroContent(models.Model):
@@ -82,6 +85,7 @@ class GalleryEvent(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     date = models.DateField(blank=True, null=True)
+    location = models.CharField(max_length=200, default='KNIT Campus')
     cover_photo = models.ImageField(upload_to='gallery/covers/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -121,6 +125,19 @@ class FeaturedItem(models.Model):
 
     def __str__(self):
         return self.title[:80]
+        
+    def save(self, *args, **kwargs):
+        if self.image:
+            try:
+                size_bytes = self.image.size
+                if size_bytes < 1024 * 1024:
+                    self.file_size = f"{int(size_bytes / 1024)} KB"
+                else:
+                    self.file_size = f"{round(size_bytes / (1024 * 1024), 2)} MB"
+            except Exception as e:
+                print(f"Error auto-detecting featured image size: {e}")
+                
+        super().save(*args, **kwargs)
 
 
 class QuickLink(models.Model):
@@ -156,3 +173,71 @@ class Course(models.Model):
 
     def __str__(self):
         return f'{self.name} ({self.degree})'
+
+
+class Circular(models.Model):
+    title = models.CharField(max_length=500)
+    date = models.CharField(max_length=30, blank=True, default='')
+    file_size = models.CharField(max_length=30, blank=True, default='')
+    language = models.CharField(max_length=30, default='English')
+    file = models.FileField(upload_to='circulars/', blank=True, null=True)
+    link = models.URLField(blank=True, default='')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.title[:80]
+        
+    def save(self, *args, **kwargs):
+        # Auto-calculate file size and language if file is present
+        if self.file:
+            try:
+                # Set file size
+                size_bytes = self.file.size
+                if size_bytes < 1024 * 1024:
+                    self.file_size = f"{int(size_bytes / 1024)} KB"
+                else:
+                    self.file_size = f"{round(size_bytes / (1024 * 1024), 2)} MB"
+                    
+                # Try to detect language for PDF files
+                if self.file.name and self.file.name.lower().endswith('.pdf'):
+                    # Save first to ensure the file exists on disk if it's new
+                    is_new = self.pk is None
+                    if is_new:
+                        super().save(*args, **kwargs)
+                        
+                    reader = PdfReader(self.file.path)
+                    if len(reader.pages) > 0:
+                        text = reader.pages[0].extract_text()
+                        if text and text.strip():
+                            lang_code = detect(text)
+                            if lang_code == 'hi':
+                                self.language = 'Hindi'
+                            elif lang_code == 'en':
+                                self.language = 'English'
+                            # Fallback behavior is handled by not modifying the field
+            except Exception as e:
+                print(f"Error auto-detecting file metadata: {e}")
+                
+        super().save(*args, **kwargs)
+
+
+class Notice(models.Model):
+    title = models.CharField(max_length=500)
+    description = models.TextField(blank=True, default='')
+    date = models.CharField(max_length=30, blank=True, default='')
+    file = models.FileField(upload_to='notices/', blank=True, null=True)
+    link = models.URLField(blank=True, default='')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.title[:80]

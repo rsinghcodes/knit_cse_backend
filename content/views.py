@@ -6,13 +6,14 @@ from rest_framework.views import APIView
 
 from .models import (
     HeroContent, Highlight, Faculty, Alumni, GalleryEvent, GalleryPhoto,
-    FeaturedItem, QuickLink, Course
+    FeaturedItem, QuickLink, Course, Circular, Notice
 )
 from .serializers import (
     HeroContentSerializer, HighlightSerializer,
     FacultySerializer, AlumniSerializer,
     GalleryEventSerializer, GalleryPhotoSerializer,
-    FeaturedItemSerializer, QuickLinkSerializer, CourseSerializer
+    FeaturedItemSerializer, QuickLinkSerializer, CourseSerializer,
+    CircularSerializer, NoticeSerializer
 )
 
 
@@ -155,3 +156,35 @@ class CourseViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             return []
         return [IsAdminUser()]
+
+
+class CircularViewSet(viewsets.ModelViewSet):
+    queryset = Circular.objects.filter(is_active=True)
+    serializer_class = CircularSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        return [IsAdminUser()]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+
+class NoticeViewSet(viewsets.ModelViewSet):
+    queryset = Notice.objects.filter(is_active=True)
+    serializer_class = NoticeSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        return [IsAdminUser()]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
