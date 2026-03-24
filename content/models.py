@@ -241,3 +241,86 @@ class Notice(models.Model):
 
     def __str__(self):
         return self.title[:80]
+
+
+class AboutDepartment(models.Model):
+    intro_text_1 = models.TextField(blank=True, default="The Department of Computer Science & Engineering was established in 2010 with an intake of 60 students. The department has highly qualified, committed and well experienced faculty members with varied specializations. The faculties are involved in organizing and participating in several seminars, conferences and workshops. They have also published research papers in various national and international journals, presented papers in conferences in India. Over the years, the department has become a center of excellence, providing in-depth technical knowledge and opportunities for innovation and research, with well-equipped computer facilities.")
+    intro_text_2 = models.TextField(blank=True, default="Computer Science & Engineering Department is the first point of contact for the campus community by supporting telephone, computing, networking, and applications. CSE Department is dedicated to facilitate and enhance teaching, learning, and administrative services and to increase the productivity and efficiency using information technology resources.")
+    objective = models.TextField(blank=True, default="To be center of excellence in technical higher education, research, and support services, capable of making significant contribution to individual and societal empowerment.")
+    vision = models.TextField(blank=True, default="To be centre of excellence in the computer science & engineering which will produce globally competent engineers with the moral values and technical skills for the betterment of the society.")
+    mission = models.TextField(blank=True, default="• To groom our students with the quality of leadership and communication skills by working on real life projects.\n• To create an environment for engineering knowledge and innovative research.")
+
+    class Meta:
+        verbose_name = 'About Department'
+
+    def __str__(self):
+        return 'About Department Section'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class AboutSidebarLink(models.Model):
+    title = models.CharField(max_length=200)
+    href = models.CharField(max_length=500, default='/')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+
+class Staff(models.Model):
+    name = models.CharField(max_length=200)
+    designation = models.CharField(max_length=200)
+    department = models.CharField(max_length=100, default='CSE')
+    photo = models.ImageField(upload_to='staff/photos/', blank=True, null=True)
+    profile_link = models.URLField(blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name_plural = 'Staff'
+
+    def __str__(self):
+        return self.name
+
+class Student(models.Model):
+    name = models.CharField(max_length=200)
+    enrollment_no = models.CharField(max_length=100)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='students')
+    batch = models.CharField(max_length=50, help_text='e.g. 2021-2025')
+    linkedin = models.URLField(blank=True, null=True)
+    photo = models.ImageField(upload_to='students/photos/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-course', '-batch', 'name']
+        verbose_name_plural = 'Students'
+
+    def __str__(self):
+        return f'{self.name} ({self.enrollment_no})'
+
+
+class StudentListPdf(models.Model):
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='student_lists')
+    session_year = models.CharField(max_length=20, help_text='e.g., 2024-2025')
+    year_of_study = models.CharField(max_length=20, help_text='e.g., 1st Year')
+    file = models.FileField(upload_to='student_lists/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-session_year', 'year_of_study']
+        verbose_name_plural = 'Student List PDFs'
+
+    def __str__(self):
+        return f'{self.course.name} - {self.session_year} ({self.year_of_study})'

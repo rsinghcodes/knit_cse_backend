@@ -186,5 +186,92 @@ class NoticeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
+        return context
+
+from .models import AboutDepartment, AboutSidebarLink
+from .serializers import AboutDepartmentSerializer, AboutSidebarLinkSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class AboutDepartmentView(APIView):
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            return []
+        return [IsAdminUser()]
+
+    def get(self, request):
+        obj = AboutDepartment.load()
+        serializer = AboutDepartmentSerializer(obj)
+        return Response(serializer.data)
+
+    def put(self, request):
+        obj = AboutDepartment.load()
+        serializer = AboutDepartmentSerializer(obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+
+class AboutSidebarLinkViewSet(viewsets.ModelViewSet):
+    queryset = AboutSidebarLink.objects.all()
+    serializer_class = AboutSidebarLinkSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        return [IsAdminUser()]
+
+from .models import Staff, Student
+from .serializers import StaffSerializer, StudentSerializer
+
+class StaffViewSet(viewsets.ModelViewSet):
+    queryset = Staff.objects.all()
+    serializer_class = StaffSerializer
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        return [IsAdminUser()]
+
+class StudentViewSet(viewsets.ModelViewSet):
+    serializer_class = StudentSerializer
+    
+    def get_queryset(self):
+        queryset = Student.objects.all()
+        course_id = self.request.query_params.get('course', None)
+        if course_id is not None:
+            queryset = queryset.filter(course_id=course_id)
+        return queryset
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        return [IsAdminUser()]
+
+
+from .models import StudentListPdf
+from .serializers import StudentListPdfSerializer
+
+class StudentListPdfViewSet(viewsets.ModelViewSet):
+    serializer_class = StudentListPdfSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    
+    def get_queryset(self):
+        queryset = StudentListPdf.objects.all()
+        course_id = self.request.query_params.get('course', None)
+        if course_id is not None:
+            queryset = queryset.filter(course_id=course_id)
+        return queryset
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'create', 'update', 'partial_update', 'destroy']:
+            if self.request.method in ['GET']:
+                return []
+            return [IsAdminUser()]
+        return [IsAdminUser()]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
         context['request'] = self.request
         return context

@@ -26,7 +26,18 @@ router.register(r'courses', CourseViewSet, basename='course')
 router.register(r'circulars', CircularViewSet, basename='circular')
 router.register(r'notices', NoticeViewSet, basename='notice')
 
+from .views import AboutDepartmentView, AboutSidebarLinkViewSet
+
+router.register(r'about-links', AboutSidebarLinkViewSet, basename='about-link')
+
+from .views import StaffViewSet, StudentViewSet
+
+router.register(r'staff', StaffViewSet, basename='staff')
+router.register(r'students', StudentViewSet, basename='student')
+from .views import StudentListPdfViewSet
+router.register(r'student-lists', StudentListPdfViewSet, basename='student-list')
 urlpatterns = [
     path('hero/', HeroContentView.as_view(), name='hero'),
+    path('about/', AboutDepartmentView.as_view(), name='about'),
     path('', include(router.urls)),
 ]

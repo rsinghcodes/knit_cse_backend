@@ -148,3 +148,45 @@ class NoticeSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.file.url)
         return None
 
+from .models import AboutDepartment, AboutSidebarLink
+
+class AboutDepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AboutDepartment
+        fields = '__all__'
+
+class AboutSidebarLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AboutSidebarLink
+        fields = '__all__'
+
+from .models import Staff, Student
+
+class StaffSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Staff
+        fields = '__all__'
+
+class StudentSerializer(serializers.ModelSerializer):
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    
+    class Meta:
+        model = Student
+        fields = '__all__'
+
+
+from .models import StudentListPdf
+
+class StudentListPdfSerializer(serializers.ModelSerializer):
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StudentListPdf
+        fields = '__all__'
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return None
