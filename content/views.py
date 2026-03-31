@@ -151,7 +151,12 @@ class QuickLinkViewSet(viewsets.ModelViewSet):
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return []
@@ -269,6 +274,57 @@ class StudentListPdfViewSet(viewsets.ModelViewSet):
             if self.request.method in ['GET']:
                 return []
             return [IsAdminUser()]
+        return [IsAdminUser()]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+
+from .models import CourseTimetable, CourseSyllabus
+from .serializers import CourseTimetableSerializer, CourseSyllabusSerializer
+
+class CourseTimetableViewSet(viewsets.ModelViewSet):
+    serializer_class = CourseTimetableSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print("VALIDATION ERRORS:", serializer.errors)
+        return super().create(request, *args, **kwargs)
+
+    def get_queryset(self):
+        queryset = CourseTimetable.objects.all()
+        course_id = self.request.query_params.get('course', None)
+        if course_id is not None:
+            queryset = queryset.filter(course_id=course_id)
+        return queryset
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        return [IsAdminUser()]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+class CourseSyllabusViewSet(viewsets.ModelViewSet):
+    serializer_class = CourseSyllabusSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    
+    def get_queryset(self):
+        queryset = CourseSyllabus.objects.all()
+        course_id = self.request.query_params.get('course', None)
+        if course_id is not None:
+            queryset = queryset.filter(course_id=course_id)
+        return queryset
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
         return [IsAdminUser()]
 
     def get_serializer_context(self):

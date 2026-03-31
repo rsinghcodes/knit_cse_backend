@@ -165,6 +165,7 @@ class Course(models.Model):
     eligibility = models.JSONField(default=list)
     highlights = models.JSONField(default=list)
     career_prospects = models.JSONField(default=list)
+    brochure = models.FileField(upload_to='courses/brochures/', blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
@@ -324,3 +325,31 @@ class StudentListPdf(models.Model):
 
     def __str__(self):
         return f'{self.course.name} - {self.session_year} ({self.year_of_study})'
+
+
+class CourseTimetable(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='timetables')
+    year = models.CharField(max_length=20, help_text='e.g., Year 1')
+    file = models.FileField(upload_to='courses/timetables/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['course', 'year']
+        verbose_name_plural = 'Course Timetables'
+
+    def __str__(self):
+        return f'{self.course.name} - {self.year} Timetable'
+
+
+class CourseSyllabus(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='syllabuses')
+    year = models.CharField(max_length=20, help_text='e.g., Year 1')
+    file = models.FileField(upload_to='courses/syllabuses/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['course', 'year']
+        verbose_name_plural = 'Course Syllabuses'
+
+    def __str__(self):
+        return f'{self.course.name} - {self.year} Syllabus'

@@ -115,10 +115,48 @@ class QuickLinkSerializer(serializers.ModelSerializer):
         return None
 
 
+from .models import CourseTimetable, CourseSyllabus
+
+class CourseTimetableSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseTimetable
+        fields = ['id', 'course', 'year', 'file', 'file_url', 'created_at']
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return None
+
+class CourseSyllabusSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseSyllabus
+        fields = ['id', 'course', 'year', 'file', 'file_url', 'created_at']
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return None
+
 class CourseSerializer(serializers.ModelSerializer):
+    timetables = CourseTimetableSerializer(many=True, read_only=True)
+    syllabuses = CourseSyllabusSerializer(many=True, read_only=True)
+    brochure_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
         fields = '__all__'
+
+    def get_brochure_url(self, obj):
+        request = self.context.get('request')
+        if obj.brochure and request:
+            return request.build_absolute_uri(obj.brochure.url)
+        return None
 
 
 class CircularSerializer(serializers.ModelSerializer):
