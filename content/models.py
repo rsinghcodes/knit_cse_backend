@@ -353,3 +353,61 @@ class CourseSyllabus(models.Model):
 
     def __str__(self):
         return f'{self.course.name} - {self.year} Syllabus'
+
+
+class ContactInfo(models.Model):
+    page_title = models.CharField(max_length=200, default='Contact Us')
+    page_subtitle = models.TextField(default="We're here to help and answer any questions you might have about the Computer Science & Engineering department.")
+    address_line_1 = models.CharField(max_length=300, default='Kamla Nehru Institute of Technology,')
+    address_line_2 = models.CharField(max_length=300, default='Sultanpur, Uttar Pradesh - 228118,')
+    address_line_3 = models.CharField(max_length=300, default='India')
+    phone = models.CharField(max_length=100, default='+91-5362-240454')
+    email = models.CharField(max_length=200, default='cse@knit.ac.in')
+    map_embed_url = models.URLField(max_length=1000, default='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14309.832717983633!2d82.07223635541991!3d26.2792611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x399a7c86d691219f%3A0x99a3eb1e7c07f78f!2sKamla%20Nehru%20Institute%20of%20Technology%2C%20Sultanpur%20(U.P.)!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus')
+
+    class Meta:
+        verbose_name = 'Contact Info'
+
+    def __str__(self):
+        return 'Contact Info'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class DirectoryEntry(models.Model):
+    designation = models.CharField(max_length=300)
+    name = models.CharField(max_length=300)
+    mobile = models.CharField(max_length=100, blank=True, default='')
+    email = models.CharField(max_length=200, blank=True, default='')
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+        verbose_name_plural = 'Directory Entries'
+
+    def __str__(self):
+        return f'{self.designation} — {self.name}'
+
+
+class HeroBanner(models.Model):
+    image = models.ImageField(upload_to='hero/banners/')
+    caption = models.CharField(max_length=300, blank=True, default='')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+        verbose_name_plural = 'Hero Banners'
+
+    def __str__(self):
+        return self.caption or f'Banner #{self.pk}'
+

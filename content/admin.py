@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import HeroContent, Highlight, Faculty, Alumni, GalleryEvent, GalleryPhoto, Circular, Notice
+from .models import HeroContent, Highlight, Faculty, Alumni, GalleryEvent, GalleryPhoto, Circular, Notice, ContactInfo, DirectoryEntry, HeroBanner
 
 
 @admin.register(HeroContent)
@@ -52,4 +52,25 @@ class NoticeAdmin(admin.ModelAdmin):
     list_display = ['title', 'date', 'order', 'is_active']
     list_editable = ['order', 'is_active']
     ordering = ['order']
+
+
+@admin.register(ContactInfo)
+class ContactInfoAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(DirectoryEntry)
+class DirectoryEntryAdmin(admin.ModelAdmin):
+    list_display = ['designation', 'name', 'mobile', 'email', 'order']
+    list_editable = ['order']
+    ordering = ['order']
+
+
+@admin.register(HeroBanner)
+class HeroBannerAdmin(admin.ModelAdmin):
+    list_display = ['caption', 'order', 'is_active', 'created_at']
+    list_editable = ['order', 'is_active']
+    ordering = ['order']
+
+
 

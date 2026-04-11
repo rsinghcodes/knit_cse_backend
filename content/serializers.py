@@ -228,3 +228,32 @@ class StudentListPdfSerializer(serializers.ModelSerializer):
         if obj.file and request:
             return request.build_absolute_uri(obj.file.url)
         return None
+
+from .models import ContactInfo, DirectoryEntry
+
+class ContactInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactInfo
+        fields = '__all__'
+
+class DirectoryEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DirectoryEntry
+        fields = '__all__'
+
+from .models import HeroBanner
+
+class HeroBannerSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = HeroBanner
+        fields = ['id', 'image', 'image_url', 'caption', 'order', 'is_active', 'created_at']
+
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        return None
+
+

@@ -331,3 +331,61 @@ class CourseSyllabusViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
+
+from .models import ContactInfo, DirectoryEntry
+from .serializers import ContactInfoSerializer, DirectoryEntrySerializer
+
+class ContactInfoView(APIView):
+    """Singleton contact info — GET for everyone, PATCH for admins."""
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return []
+        return [IsAdminUser()]
+
+    def get(self, request):
+        obj = ContactInfo.load()
+        serializer = ContactInfoSerializer(obj, context={'request': request})
+        return Response(serializer.data)
+
+    def patch(self, request):
+        obj = ContactInfo.load()
+        serializer = ContactInfoSerializer(
+            obj, data=request.data, partial=True, context={'request': request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DirectoryEntryViewSet(viewsets.ModelViewSet):
+    queryset = DirectoryEntry.objects.all()
+    serializer_class = DirectoryEntrySerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        return [IsAdminUser()]
+
+
+from .models import HeroBanner
+from .serializers import HeroBannerSerializer
+
+class HeroBannerViewSet(viewsets.ModelViewSet):
+    queryset = HeroBanner.objects.filter(is_active=True)
+    serializer_class = HeroBannerSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        return [IsAdminUser()]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+

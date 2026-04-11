@@ -39,9 +39,14 @@ router.register(r'student-lists', StudentListPdfViewSet, basename='student-list'
 from .views import CourseTimetableViewSet, CourseSyllabusViewSet
 router.register(r'course-timetables', CourseTimetableViewSet, basename='course-timetable')
 router.register(r'course-syllabuses', CourseSyllabusViewSet, basename='course-syllabus')
+from .views import ContactInfoView, DirectoryEntryViewSet
+router.register(r'directory', DirectoryEntryViewSet, basename='directory')
+from .views import HeroBannerViewSet
+router.register(r'hero-banners', HeroBannerViewSet, basename='hero-banner')
 
 urlpatterns = [
     path('hero/', HeroContentView.as_view(), name='hero'),
     path('about/', AboutDepartmentView.as_view(), name='about'),
+    path('contact-info/', ContactInfoView.as_view(), name='contact-info'),
     path('', include(router.urls)),
 ]
