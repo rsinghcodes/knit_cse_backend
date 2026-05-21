@@ -10,3 +10,8 @@ python manage.py collectstatic --no-input
 
 # Apply database migrations
 python manage.py migrate
+
+# Create superuser if the flag is enabled
+if [ "$CREATE_SUPERUSER" = "true" ]; then
+  python manage.py createsuperuser --noinput || true
+fi
